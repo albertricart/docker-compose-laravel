@@ -2,9 +2,14 @@ FROM php:8.1-fpm-alpine
 
 ARG UID
 ARG GID
+ARG USES_INTERVENTION
+ARG XDEBUG
+ARG XDEBUG_PORT
 
 ENV UID=${UID}
 ENV GID=${GID}
+ENV USES_INTERVENTION=${USES_INTERVENTION}
+ENV XDEBUG_PORT=${XDEBUG_PORT}
 
 RUN mkdir -p /var/www/html
 
@@ -20,19 +25,10 @@ RUN sed -i "s/user = www-data/user = laravel/g" /usr/local/etc/php-fpm.d/www.con
 RUN sed -i "s/group = www-data/group = laravel/g" /usr/local/etc/php-fpm.d/www.conf
 RUN echo "php_admin_flag[log_errors] = on" >> /usr/local/etc/php-fpm.d/www.conf
 
-if(INTERVENTION_PACKAGE)
+RUN docker-php-ext-install pdo pdo_mysql && \ 
     # Required for laravel intervention image
-    RUN apk add libpng-dev \
-        && apk add libjpeg-turbo-dev
+    if [ ${USES_INTERVENTION} == "true" ] ; then apk add libpng-dev && apk add libjpeg-turbo-dev ; then docker-php-ext-configure gd --with-jpeg ; then docker-php-ext-install gd ; fi
 
-    RUN docker-php-ext-configure gd --with-jpeg
-    RUN docker-php-ext-install gd
-
-RUN docker-php-ext-install pdo pdo_mysql
-
-
-ARG XDEBUG
-ARG XDEBUG_PORT
 
 RUN apk add --no-cache $PHPIZE_DEPS \
 	&& pecl install xdebug-3.1.2 \

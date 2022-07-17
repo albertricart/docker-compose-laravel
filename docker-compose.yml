@@ -61,6 +61,7 @@ services:
       args:
         - UID=${UID:-1000}
         - GID=${GID:-1000}
+        - USES_INTERVENTION='${INTERVENTION_PACKAGE:-false}'
         - XDEBUG='${XDEBUG:-true}'
         - XDEBUG_PORT='${XDEBUG_PORT:-9003}'
     container_name: ${PROJECT_NAME}_php
